@@ -32,29 +32,29 @@ void print_statistics(MeFiSimRank &mfsr) {
 	std::cout << mfsr.num_tails() << " users are favees" << std::endl;
 
 	// Calculate favorite-related totals
-	size_t num_edges = 0;
-	size_t total_weight = 0;
-	size_t max_weight = 0; int max_weight_faver = 0, max_weight_favee = 0;
-	std::map<size_t, size_t> weight_histogram;
+	size_t num_pairs = 0;
+	size_t total_favorites = 0;
+	size_t max_favorites = 0; int max_faves_faver = 0, max_faves_favee = 0;
+	std::map<size_t, size_t> favorites_histogram;
 	for (auto edge : mfsr.edges()) {
-		num_edges++;
-		size_t weight = (size_t)edge.weight;
-		total_weight += weight;
-		if (weight > max_weight) {
-			max_weight = weight;
-			max_weight_faver = edge.head;
-			max_weight_favee = edge.tail;
+		num_pairs++;
+		size_t pair_favorites = (size_t)edge.weight;
+		total_favorites += pair_favorites;
+		if (pair_favorites > max_favorites) {
+			max_favorites = pair_favorites;
+			max_faves_faver = edge.head;
+			max_faves_favee = edge.tail;
 		}
-		weight_histogram[weight]++;
+		favorites_histogram[pair_favorites]++;
 	}
 	// Print favorite-related totals
-	std::cout << total_weight << " total favorites" << std::endl;
-	std::cout << num_edges << " unique faver-favee pairs" << std::endl;
+	std::cout << total_favorites << " total favorites" << std::endl;
+	std::cout << num_pairs << " unique faver-favee pairs" << std::endl;
 
 	// Print statistical averages
-	std::cout << "average " << (total_weight / mfsr.num_heads()) << " favorites given per user" << std::endl;
-	std::cout << "average " << (total_weight / mfsr.num_tails()) << " favorites received per user" << std::endl;
-	std::cout << "average " << (total_weight / num_edges) << " favorites per faver-favee pair" << std::endl;
+	std::cout << "average " << (total_favorites / mfsr.num_heads()) << " favorites given per user" << std::endl;
+	std::cout << "average " << (total_favorites / mfsr.num_tails()) << " favorites received per user" << std::endl;
+	std::cout << "average " << (total_favorites / num_pairs) << " favorites per faver-favee pair" << std::endl;
 
 	// Calculate statistical maxima
 	size_t max_faves_given = 0; int max_faves_given_user = 0;
@@ -62,13 +62,13 @@ void print_statistics(MeFiSimRank &mfsr) {
 	size_t max_favee_count = 0; int max_favee_count_user = 0;
 	size_t max_faver_count = 0; int max_faver_count_user = 0;
 	for (int user : mfsr.nodes()) {
-		size_t num_faves_given = mfsr.out_degree(user);
+		size_t num_faves_given = (size_t)mfsr.out_degree(user);
 		if (num_faves_given > max_faves_given) {
 			max_faves_given = num_faves_given;
 			max_faves_given_user = user;
 		}
 
-		size_t num_faves_received = mfsr.in_degree(user);
+		size_t num_faves_received = (size_t)mfsr.in_degree(user);
 		if (num_faves_received > max_faves_received) {
 			max_faves_received = num_faves_received;
 			max_faves_received_user = user;
@@ -92,7 +92,7 @@ void print_statistics(MeFiSimRank &mfsr) {
 	// Print maxima
 	std::cout << "maximum " << max_faves_given << " favorites given by user #" << max_faves_given_user << std::endl;
 	std::cout << "maximum " << max_faves_received << " favorites received by user #" << max_faves_received_user << std::endl;
-	std::cout << "maximum " << max_weight << " favorites given by user #" << max_weight_faver << " to user #" << max_weight_favee << std::endl;
+	std::cout << "maximum " << max_favorites << " favorites given by user #" << max_faves_faver << " to user #" << max_faves_favee << std::endl;
 	std::cout << "maximum " << max_favee_count << " favees for user #" << max_favee_count_user << std::endl;
 	std::cout << "maximum " << max_faver_count << " favers of user #" << max_faver_count_user << std::endl;
 }

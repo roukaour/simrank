@@ -24,7 +24,7 @@ public:
 	// Reserve space in memory for at least n nodes
 	void reserve(size_t n);
 	// Add an edge to the graph
-	void add_edge(node_t head, node_t tail);
+	void add_edge(node_t head, node_t tail, float_t weight = 1);
 	// Calculate SimRank scores after adding all the edges
 	void calculate_simrank(void);
 	// Return the similarity score between nodes a and b
@@ -59,9 +59,9 @@ public:
 	inline const edge_iterable edges(void) const { return edge_iterable(*this); }
 
 	// Return the out-degree of node x (the sum of the outgoing edges' weights)
-	inline int out_degree(node_t x) { return node_properties_[x].out_degree; }
+	inline float_t out_degree(node_t x) { return node_properties_[x].out_degree; }
 	// Return the in-degree of node x (the sum of the incoming edges' weights)
-	inline int in_degree(node_t x) { return node_properties_[x].in_degree; }
+	inline float_t in_degree(node_t x) { return node_properties_[x].in_degree; }
 
 	class out_iterable;
 	class in_iterable;
@@ -77,7 +77,7 @@ private:
 	struct node_prop_t {
 		umap<node_t, float_t> simrank;
 		float_t partial_sum;
-		int in_degree, out_degree;
+		float_t in_degree, out_degree;
 		inline node_prop_t(void) : simrank(), partial_sum(), in_degree(), out_degree() {}
 	};
 
@@ -217,11 +217,11 @@ void SimRank<node_t, float_t>::reserve(size_t n) {
 }
 
 template<typename node_t, typename float_t>
-void SimRank<node_t, float_t>::add_edge(node_t head, node_t tail) {
-	node_properties_[head].out_degree++;
-	node_properties_[tail].in_degree++;
+void SimRank<node_t, float_t>::add_edge(node_t head, node_t tail, float_t weight) {
+	node_properties_[head].out_degree += weight;
+	node_properties_[tail].in_degree += weight;
 	in_neighbors_[tail].insert(head);
-	edge_weights_[head][tail]++;
+	edge_weights_[head][tail] += weight;
 }
 
 template<typename node_t, typename float_t>
