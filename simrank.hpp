@@ -31,7 +31,6 @@ public:
 	inline const Key_Iterator &operator++() { ++pos_; return *this; }
 };
 
-
 template<typename K, typename V>
 using umap = std::unordered_map<K, V>;
 
