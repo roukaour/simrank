@@ -9,6 +9,29 @@
 #include <algorithm>
 #include <iterator>
 
+template<typename T, typename I>
+class Iterator_Wrapper {
+private:
+	const T &collection_;
+public:
+	inline Iterator_Wrapper(const T &c) : collection_(c) {}
+	inline const I begin(void) const { return I(collection_.begin()); }
+	inline const I end(void) const { return I(collection_.end()); }
+	inline Iterator_Wrapper &operator=(const Iterator_Wrapper &) { return *this; }
+};
+
+template<typename T>
+class Key_Iterator {
+private:
+	typename T::const_iterator pos_;
+public:
+	inline Key_Iterator(typename T::const_iterator pos) : pos_(pos) {}
+	inline typename T::key_type operator*() { return pos_->first; }
+	inline bool operator!=(const Key_Iterator &other) const { return pos_ != other.pos_; }
+	inline const Key_Iterator &operator++() { ++pos_; return *this; }
+};
+
+
 template<typename K, typename V>
 using umap = std::unordered_map<K, V>;
 
@@ -51,24 +74,28 @@ public:
 		inline edge_t(node_t head, node_t tail, float_t weight) : head(head), tail(tail), weight(weight) {}
 	};
 
-	class node_iterable;
-	class edge_iterable;
+	struct node_prop_t;
 	// Iterate over all nodes, e.g. "for (node_t x : simrank.nodes()) { ... }"
-	inline const node_iterable nodes(void) const { return node_iterable(*this); }
+	inline const Iterator_Wrapper<umap<node_t, node_prop_t>, Key_Iterator<umap<node_t, node_prop_t>>> nodes(void) const {
+		return Iterator_Wrapper<umap<node_t, node_prop_t>, Key_Iterator<umap<node_t, node_prop_t>>>(node_properties_);
+	}
+	class edge_iterable;
 	// Iterate over all edges, e.g. "for (SimRank::edge_t e : simrank.edges()) { ... }"
-	inline const edge_iterable edges(void) const { return edge_iterable(*this); }
+	inline const edge_iterable edges(void) const { return edge_iterable(edge_weights_); }
 
 	// Return the out-degree of node x (the sum of the outgoing edges' weights)
 	inline float_t out_degree(node_t x) { return node_properties_[x].out_degree; }
 	// Return the in-degree of node x (the sum of the incoming edges' weights)
 	inline float_t in_degree(node_t x) { return node_properties_[x].in_degree; }
 
-	class out_iterable;
-	class in_iterable;
 	// Iterate over the out-neighbors of node x, e.g. "for (node_t y : simrank.out_neighbors(x)) { ... }"
-	inline const out_iterable out_neighbors(node_t x) { return out_iterable(edge_weights_[x]); }
+	inline const Iterator_Wrapper<umap<node_t, float_t>, Key_Iterator<umap<node_t, float_t>>> out_neighbors(node_t x) {
+		return Iterator_Wrapper<umap<node_t, float_t>, Key_Iterator<umap<node_t, float_t>>>(edge_weights_[x]);
+	}
 	// Iterate over the in-neighbors of node x, e.g. "for (node_t y : simrank.in_neighbors(x)) { ... }"
-	inline const in_iterable in_neighbors(node_t x) { return in_iterable(in_neighbors_[x]); }
+	inline const Iterator_Wrapper<uset<node_t>, typename uset<node_t>::const_iterator> in_neighbors(node_t x) {
+		return Iterator_Wrapper<uset<node_t>, typename uset<node_t>::const_iterator>(in_neighbors_[x]);
+	}
 
 	// Return the weight of the edge from a to b (normalized after calling calculate_simrank())
 	inline float_t edge_weight(node_t a, node_t b) { return edge_weights_[a][b]; }
@@ -98,26 +125,6 @@ private:
 	void update_simrank_scores(node_t a, int k);
 
 public:
-	class node_iterator {
-	private:
-		typename umap<node_t, node_prop_t>::const_iterator pos_;
-	public:
-		inline node_iterator(typename umap<node_t, node_prop_t>::const_iterator pos) : pos_(pos) {}
-		inline node_t operator*() { return pos_->first; }
-		inline bool operator!=(const node_iterator &other) const { return pos_ != other.pos_; }
-		inline const node_iterator &operator++() { ++pos_; return *this; }
-	};
-
-	class node_iterable {
-	private:
-		const SimRank &simrank_;
-	public:
-		inline node_iterable(const SimRank &s) : simrank_(s) {}
-		inline const node_iterator begin(void) const { return node_iterator(simrank_.node_properties_.begin()); }
-		inline const node_iterator end(void) const { return node_iterator(simrank_.node_properties_.end()); }
-		inline node_iterable &operator=(const node_iterable &) { return *this; }
-	};
-
 	class edge_iterator {
 		typedef typename umap<node_t, umap<node_t, float_t>>::const_iterator pos_iterator;
 		typedef typename umap<node_t, float_t>::const_iterator subpos_iterator;
@@ -141,60 +148,16 @@ public:
 
 	class edge_iterable {
 	private:
-		const SimRank &simrank_;
+		const umap<node_t, umap<node_t, float_t>> &edges_;
 	public:
-		inline edge_iterable(const SimRank &s) : simrank_(s) {}
+		inline edge_iterable(const umap<node_t, umap<node_t, float_t>> &edges) : edges_(edges) {}
 		inline const edge_iterator begin(void) const {
-			return edge_iterator(
-				simrank_.edge_weights_.begin(), simrank_.edge_weights_.begin()->second.begin(),
-				simrank_.edge_weights_.end(), simrank_.edge_weights_.begin()->second.end());
+			return edge_iterator(edges_.begin(), edges_.begin()->second.begin(), edges_.end(), edges_.begin()->second.end());
 		}
 		inline const edge_iterator end(void) const {
-			return edge_iterator(
-				simrank_.edge_weights_.end(), simrank_.edge_weights_.begin()->second.end(),
-				simrank_.edge_weights_.end(), simrank_.edge_weights_.begin()->second.end());
+			return edge_iterator(edges_.end(), edges_.begin()->second.end(), edges_.end(), edges_.begin()->second.end());
 		}
 		inline edge_iterable &operator=(const edge_iterable &) { return *this; }
-	};
-
-	class out_iterator {
-	private:
-		typename umap<node_t, float_t>::const_iterator pos_;
-	public:
-		inline out_iterator(typename umap<node_t, float_t>::const_iterator pos) : pos_(pos) {}
-		inline node_t operator*() { return pos_->first; }
-		inline bool operator!=(const out_iterator &other) const { return pos_ != other.pos_; }
-		inline const out_iterator &operator++() { ++pos_; return *this; }
-	};
-
-	class out_iterable {
-	private:
-		const umap<node_t, float_t> &collection_;
-	public:
-		inline out_iterable(const umap<node_t, float_t> &c) : collection_(c) {}
-		inline const out_iterator begin(void) const { return out_iterator(collection_.begin()); }
-		inline const out_iterator end(void) const { return out_iterator(collection_.end()); }
-		inline out_iterable &operator=(const out_iterable &) { return *this; }
-	};
-
-	class in_iterator {
-	private:
-		typename uset<node_t>::const_iterator pos_;
-	public:
-		inline in_iterator(typename uset<node_t>::const_iterator pos) : pos_(pos) {}
-		inline node_t operator*() { return *pos_; }
-		inline bool operator!=(const in_iterator &other) const { return pos_ != other.pos_; }
-		inline const in_iterator &operator++() { ++pos_; return *this; }
-	};
-
-	class in_iterable {
-	private:
-		const uset<node_t> &collection_;
-	public:
-		inline in_iterable(const uset<node_t> &c) : collection_(c) {}
-		inline const in_iterator begin(void) const { return in_iterator(collection_.begin()); }
-		inline const in_iterator end(void) const { return in_iterator(collection_.end()); }
-		inline in_iterable &operator=(const in_iterable &) { return *this; }
 	};
 };
 
