@@ -14,7 +14,7 @@ class Iterator_Wrapper {
 private:
 	const T &collection_;
 public:
-	inline Iterator_Wrapper(const T &c) : collection_(c) {}
+	inline Iterator_Wrapper(const T &collection) : collection_(collection) {}
 	inline const I begin(void) const { return I(collection_.begin()); }
 	inline const I end(void) const { return I(collection_.end()); }
 	inline Iterator_Wrapper &operator=(const Iterator_Wrapper &) { return *this; }
@@ -33,6 +33,9 @@ public:
 
 template<typename T>
 using Key_Iterator_Wrapper = Iterator_Wrapper<T, Key_Iterator<T>>;
+
+template<typename T>
+using Const_Iterator_Wrapper = Iterator_Wrapper<T, typename T::const_iterator>;
 
 template<typename K, typename V>
 using umap = std::unordered_map<K, V>;
@@ -95,8 +98,8 @@ public:
 		return Key_Iterator_Wrapper<umap<node_t, float_t>>(edge_weights_[x]);
 	}
 	// Iterate over the in-neighbors of node x, e.g. "for (node_t y : simrank.in_neighbors(x)) { ... }"
-	inline const Iterator_Wrapper<uset<node_t>, typename uset<node_t>::const_iterator> in_neighbors(node_t x) {
-		return Iterator_Wrapper<uset<node_t>, typename uset<node_t>::const_iterator>(in_neighbors_[x]);
+	inline const Const_Iterator_Wrapper<uset<node_t>> in_neighbors(node_t x) {
+		return Const_Iterator_Wrapper<uset<node_t>>(in_neighbors_[x]);
 	}
 
 	// Return the weight of the edge from a to b (normalized after calling calculate_simrank())
