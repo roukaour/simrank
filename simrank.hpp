@@ -31,6 +31,9 @@ public:
 	inline const Key_Iterator &operator++() { ++pos_; return *this; }
 };
 
+template<typename T>
+using Key_Iterator_Wrapper = Iterator_Wrapper<T, Key_Iterator<T>>;
+
 template<typename K, typename V>
 using umap = std::unordered_map<K, V>;
 
@@ -75,8 +78,8 @@ public:
 
 	struct node_prop_t;
 	// Iterate over all nodes, e.g. "for (node_t x : simrank.nodes()) { ... }"
-	inline const Iterator_Wrapper<umap<node_t, node_prop_t>, Key_Iterator<umap<node_t, node_prop_t>>> nodes(void) const {
-		return Iterator_Wrapper<umap<node_t, node_prop_t>, Key_Iterator<umap<node_t, node_prop_t>>>(node_properties_);
+	inline const Key_Iterator_Wrapper<umap<node_t, node_prop_t>> nodes(void) const {
+		return Key_Iterator_Wrapper<umap<node_t, node_prop_t>>(node_properties_);
 	}
 	class edge_iterable;
 	// Iterate over all edges, e.g. "for (SimRank::edge_t e : simrank.edges()) { ... }"
@@ -88,8 +91,8 @@ public:
 	inline float_t in_degree(node_t x) { return node_properties_[x].in_degree; }
 
 	// Iterate over the out-neighbors of node x, e.g. "for (node_t y : simrank.out_neighbors(x)) { ... }"
-	inline const Iterator_Wrapper<umap<node_t, float_t>, Key_Iterator<umap<node_t, float_t>>> out_neighbors(node_t x) {
-		return Iterator_Wrapper<umap<node_t, float_t>, Key_Iterator<umap<node_t, float_t>>>(edge_weights_[x]);
+	inline const Key_Iterator_Wrapper<umap<node_t, float_t>> out_neighbors(node_t x) {
+		return Key_Iterator_Wrapper<umap<node_t, float_t>>(edge_weights_[x]);
 	}
 	// Iterate over the in-neighbors of node x, e.g. "for (node_t y : simrank.in_neighbors(x)) { ... }"
 	inline const Iterator_Wrapper<uset<node_t>, typename uset<node_t>::const_iterator> in_neighbors(node_t x) {
