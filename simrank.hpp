@@ -126,7 +126,7 @@ public:
 		subpos_iterator subpos_, subpos_end_;
 	public:
 		inline edge_iterator(pos_iterator pos, subpos_iterator subpos, pos_iterator pos_end, subpos_iterator subpos_end) :
-			pos_(pos), pos_end_(pos_end), subpos_(subpos), subpos_end_(subpos_end) {}
+			pos_(pos), subpos_(subpos), pos_end_(pos_end), subpos_end_(subpos_end) {}
 		inline edge_t operator*() { return edge_t(pos_->first, subpos_->first, subpos_->second); }
 		inline bool operator!=(const edge_iterator &other) const { return pos_ != other.pos_ || subpos_ != other.subpos_; }
 		inline const edge_iterator &operator++(void) {
@@ -144,14 +144,16 @@ public:
 		const SimRank &simrank_;
 	public:
 		inline edge_iterable(const SimRank &s) : simrank_(s) {}
-		inline const edge_iterator begin(void) const { return edge_iterator(simrank_.edge_weights_.begin(),
-			simrank_.edge_weights_.begin()->second.begin(),
-			simrank_.edge_weights_.end(),
-			simrank_.edge_weights_.begin()->second.end()); }
-		inline const edge_iterator end(void) const { return edge_iterator(simrank_.edge_weights_.end(),
-			simrank_.edge_weights_.begin()->second.end(),
-			simrank_.edge_weights_.end(),
-			simrank_.edge_weights_.begin()->second.end()); }
+		inline const edge_iterator begin(void) const {
+			return edge_iterator(
+				simrank_.edge_weights_.begin(), simrank_.edge_weights_.begin()->second.begin(),
+				simrank_.edge_weights_.end(), simrank_.edge_weights_.begin()->second.end());
+		}
+		inline const edge_iterator end(void) const {
+			return edge_iterator(
+				simrank_.edge_weights_.end(), simrank_.edge_weights_.begin()->second.end(),
+				simrank_.edge_weights_.end(), simrank_.edge_weights_.begin()->second.end());
+		}
 		inline edge_iterable &operator=(const edge_iterable &) { return *this; }
 	};
 
@@ -240,7 +242,7 @@ void SimRank<node_t, float_t>::calculate_simrank() {
 	for (int k = 0; k < K_; k++) {
 		for (auto const &a_aps_p : node_properties_) {
 			node_t a = a_aps_p.first;
-			int a_od = a_aps_p.second.out_degree;
+			float_t a_od = a_aps_p.second.out_degree;
 			if (a_od == 0 && k < K_ - 1) { continue; }
 			update_simrank_scores(a, k);
 		}
