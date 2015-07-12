@@ -75,7 +75,7 @@ void print_statistics(MeFiSimRank &mfsr) {
 			max_faves_received = num_faves_received;
 			max_faves_received_user = user;
 		}
-		favees_histogram[num_faves_given]++;
+		favees_histogram[num_faves_received]++;
 
 #pragma warning(disable: 4189) // '_': local variable is initialized but not referenced
 		size_t num_favee_count = 0;
@@ -105,7 +105,7 @@ void print_statistics(MeFiSimRank &mfsr) {
 	std::cout << "num_faves\tfaver_count\tfavee_count\tpair_count" << std::endl;
 	size_t max_count = std::max(std::max(favers_histogram.rbegin()->first, favees_histogram.rbegin()->first), favorites_histogram.rbegin()->first);
 	for (size_t n = 0; n <= max_count; n++) {
-		std::cout << favers_histogram[n] << "\t" << favees_histogram[n] << "\t" << favorites_histogram[n] << std::endl;
+		std::cout << n << "\t" << favers_histogram[n] << "\t" << favees_histogram[n] << "\t" << favorites_histogram[n] << std::endl;
 	}
 }
 
