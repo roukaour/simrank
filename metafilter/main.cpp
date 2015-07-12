@@ -108,7 +108,7 @@ void print_statistics(MeFiSimRank &mfsr) {
 		size_t favers_count = favers_histogram[n];
 		size_t favees_count = favees_histogram[n];
 		size_t favorites_count = favorites_histogram[n];
-		if (favers_count && favees_count && favorites_count) {
+		if (favers_count || favees_count || favorites_count) {
 			std::cout << n << "\t" << favers_count << "\t" << favees_count << "\t" << favorites_count << std::endl;
 		}
 	}
