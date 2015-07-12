@@ -14,10 +14,10 @@ void read_favorites(MeFiSimRank &mfsr, const char *filename) {
 	std::getline(ifs, line); // timestamp
 	std::getline(ifs, line); // headers
 	while (std::getline(ifs, line)) {
-		// fav_id \t faver \t favee \t ...
+		// fave_id \t faver \t favee \t ...
 		std::istringstream iss(line);
-		int fav_id, faver, favee;
-		iss >> fav_id >> faver >> favee;
+		int fave_id, faver, favee;
+		iss >> fave_id >> faver >> favee;
 		mfsr.add_edge(faver, favee);
 	}
 }
@@ -105,7 +105,12 @@ void print_statistics(MeFiSimRank &mfsr) {
 	std::cout << "num_faves\tfaver_count\tfavee_count\tpair_count" << std::endl;
 	size_t max_count = std::max(std::max(favers_histogram.rbegin()->first, favees_histogram.rbegin()->first), favorites_histogram.rbegin()->first);
 	for (size_t n = 0; n <= max_count; n++) {
-		std::cout << n << "\t" << favers_histogram[n] << "\t" << favees_histogram[n] << "\t" << favorites_histogram[n] << std::endl;
+		size_t favers_count = favers_histogram[n];
+		size_t favees_count = favees_histogram[n];
+		size_t favorites_count = favorites_histogram[n];
+		if (favers_count && favees_count && favorites_count) {
+			std::cout << n << "\t" << favers_count << "\t" << favees_count << "\t" << favorites_count << std::endl;
+		}
 	}
 }
 
