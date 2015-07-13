@@ -8,10 +8,12 @@
 
 typedef SimRank<int, float> MeFiSimRank;
 
+std::string timestamp;
+
 void read_favorites(MeFiSimRank &mfsr, const char *filename) {
 	std::ifstream ifs(filename);
 	std::string line;
-	std::getline(ifs, line); // timestamp
+	std::getline(ifs, timestamp); // timestamp
 	std::getline(ifs, line); // headers
 	while (std::getline(ifs, line)) {
 		// fave_id \t faver \t favee \t ...
@@ -23,8 +25,8 @@ void read_favorites(MeFiSimRank &mfsr, const char *filename) {
 }
 
 void print_statistics(MeFiSimRank &mfsr) {
-	// Print SimRank parameters
-	std::cout << "SimRank: K = " << mfsr.K() << ", C = " << mfsr.C() << ", D = " << mfsr.D() << std::endl;
+	// Print timestamp
+	std::cout << timestamp << std::endl;
 
 	// Print user-related totals
 	std::cout << mfsr.num_nodes() << " total users" << std::endl;
@@ -99,9 +101,10 @@ void print_statistics(MeFiSimRank &mfsr) {
 	std::cout << "maximum " << max_favee_count << " favees for user #" << max_favee_count_user << std::endl;
 	std::cout << "maximum " << max_faver_count << " favers of user #" << max_faver_count_user << std::endl;
 
+	std::cout << std::endl;
+
 	// Print histogram data
 	// num favorites \t count givers (favers) \t count receivers (favees) \t count faver-favee pairs (connections)
-	std::cout << std::endl;
 	std::cout << "num_faves\tfaver_count\tfavee_count\tpair_count" << std::endl;
 	size_t max_count = std::max(std::max(favers_histogram.rbegin()->first, favees_histogram.rbegin()->first), favorites_histogram.rbegin()->first);
 	for (size_t n = 0; n <= max_count; n++) {
@@ -112,6 +115,25 @@ void print_statistics(MeFiSimRank &mfsr) {
 			std::cout << n << "\t" << favers_count << "\t" << favees_count << "\t" << favorites_count << std::endl;
 		}
 	}
+
+	std::cout << std::endl;
+
+	// Print connections with at least 5 favorites (fewer than 10% of the total)
+	// faver \t favee \t count (instead of 1 favorite per line)
+	std::cout << "faver\tfavee\tcount" << std::endl;
+	for (auto edge : mfsr.edges()) {
+		if (edge.weight > 4) {
+			std::cout << edge.head << "\t" << edge.tail << "\t" << edge.weight << std::endl;
+		}
+	}
+
+	std::cout << std::endl;
+}
+
+void run_simrank(MeFiSimRank &mfsr) {
+	// Print SimRank parameters
+	std::cout << "SimRank: K = " << mfsr.K() << ", C = " << mfsr.C() << ", D = " << mfsr.D() << std::endl;
+	// TODO: run SimRank on the significant subset of data
 }
 
 int main(int argc, char *argv[]) {
@@ -119,6 +141,6 @@ int main(int argc, char *argv[]) {
 	const char *filename = argc > 1 ? argv[1] : "favoritesdata.txt";
 	read_favorites(mefisimrank, filename);
 	print_statistics(mefisimrank);
-	// TODO: run SimRank on the significant subset of data
+	run_simrank(mefisimrank);
 	return 0;
 }
