@@ -79,7 +79,9 @@ public:
 		inline edge_t(node_t head, node_t tail, float_t weight) : head(head), tail(tail), weight(weight) {}
 	};
 
+private:
 	struct node_prop_t;
+public:
 	// Iterate over all nodes, e.g. "for (node_t x : simrank.nodes()) { ... }"
 	inline const Key_Iterator_Wrapper<umap<node_t, node_prop_t>> nodes(void) const {
 		return Key_Iterator_Wrapper<umap<node_t, node_prop_t>>(node_properties_);
