@@ -129,7 +129,7 @@ private:
 	float_t *delta_; // deltas for threshold sieving
 
 	void normalize_edges(void);
-	void update_simrank_scores(node_t a, int k);
+	void update_simrank_scores(node_t a, size_t k);
 
 public:
 	class edge_iterator {
@@ -200,7 +200,7 @@ template<typename node_t, typename float_t>
 void SimRank<node_t, float_t>::calculate_simrank() {
 	normalize_edges();
 	// Calculate deltas for threshold sieving
-	for (int m = 0; m < K_; m++) {
+	for (size_t m = 0; m < K_; m++) {
 		delta_[m] = (float_t)(D_ / (K_ * pow(C_, K_ - m + 1)));
 	}
 	// Initialize similarity scores
@@ -209,7 +209,7 @@ void SimRank<node_t, float_t>::calculate_simrank() {
 		node_properties_[a].simrank.clear();
 	}
 	// Main loop: update scores for K iterations
-	for (int k = 0; k < K_; k++) {
+	for (size_t k = 0; k < K_; k++) {
 		for (auto const &a_aps_p : node_properties_) {
 			node_t a = a_aps_p.first;
 			float_t a_od = a_aps_p.second.out_degree;
@@ -246,7 +246,7 @@ void SimRank<node_t, float_t>::normalize_edges() {
 }
 
 template<typename node_t, typename float_t>
-void SimRank<node_t, float_t>::update_simrank_scores(node_t a, int k) {
+void SimRank<node_t, float_t>::update_simrank_scores(node_t a, size_t k) {
 	// Calculate partial sums for node a's in-neighbors
 	for (auto &u_ups_p : node_properties_) {
 		node_t u = u_ups_p.first;
