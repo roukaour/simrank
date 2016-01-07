@@ -47,7 +47,6 @@ template<typename Node, typename Float>
 class SimRank {
 public:
 	SimRank(size_t K = 6, Float C = 0.6, Float D = 0.05);
-	~SimRank();
 
 	// Reserve space in memory for at least n nodes
 	void reserve(size_t n);
@@ -119,14 +118,14 @@ private:
 	Float C_;
 	Float D_;
 
+	std::vector<Float> delta_; // deltas for threshold sieving
+
 	umap<Node, Node_Props>        node_properties_; // {node1 -> <{node2 -> SimRank}, etc>} (node1 <= node2)
 	umap<Node, uset<Node>>        in_neighbors_;    // {node -> {in-neighbors}}
 	umap<Node, umap<Node, Float>> edge_weights_;    // {head -> {tail -> weight}}
 
 	std::vector<Node> temp_nodes_;      // temporary node storage for calculating essential paired nodes
 	std::vector<Node> essential_nodes_; // essential paired nodes (reused in each update iteration)
-
-	Float *delta_; // deltas for threshold sieving
 
 	void normalize_edges(void);
 	void update_simrank_scores(Node a, size_t k);
@@ -169,15 +168,8 @@ public:
 };
 
 template<typename Node, typename Float>
-SimRank<Node, Float>::SimRank(size_t K, Float C, Float D) : K_(K), C_(C), D_(D),
-	node_properties_(), in_neighbors_(), edge_weights_(), temp_nodes_(), essential_nodes_() {
-	delta_ = new Float[K];
-}
-
-template<typename Node, typename Float>
-SimRank<Node, Float>::~SimRank() {
-	delete [] delta_;
-}
+SimRank<Node, Float>::SimRank(size_t K, Float C, Float D) : K_(K), C_(C), D_(D), delta_(K, 0),
+	node_properties_(), in_neighbors_(), edge_weights_(), temp_nodes_(), essential_nodes_() {}
 
 template<typename Node, typename Float>
 void SimRank<Node, Float>::reserve(size_t n) {
