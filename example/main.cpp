@@ -4,7 +4,7 @@
 #include "../simrank.hpp"
 
 int main() {
-	SimRank<std::string, double> example(5, 0.8);
+	SimRank<std::string> example(5, 0.8);
 
 	example.add_edge("Univ", "ProfA");
 	example.add_edge("Univ", "ProfB");

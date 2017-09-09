@@ -43,7 +43,7 @@ using umap = std::unordered_map<K, V>;
 template<typename T>
 using uset = std::unordered_set<T>;
 
-template<typename Node, typename Float>
+template<typename Node, typename Float = double>
 class SimRank {
 public:
 	SimRank(size_t K = 6, Float C = 0.6, Float D = 0.05);

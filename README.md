@@ -4,6 +4,9 @@ SimRank is a measure of similarity between nodes in a directed graph, based on t
 
 I originally wrote it to find similarities between users on [Metafilter](https://www.metafilter.com/) based on favorites data taken from the [Infodump](http://stuff.metafilter.com/infodump/).
 
+The example demonstrates correct output for the Figure 1 graph in \[1\].
+
+
 ## References
 
 [\[1\]](http://www-cs-students.stanford.edu/~glenj/simrank.pdf) G. Jeh and J. Widom. “SimRank: A Measure of Structural-Context Similarity.” In KDD ’02: Proceedings of the eighth ACM SIGKDD international conference on Knowledge discovery and data mining, pages 538−543. ACM Press, 2002.
